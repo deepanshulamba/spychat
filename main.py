@@ -6,7 +6,7 @@ print 'Let\'s get started...'
 
 spy_name = input("Welcome to spy chat, you must tell me your spy name first: ")
 if len(spy_name) > 0:
-   spy_name=input("What is your name?")
+
    print 'Welcome ' + spy_name + '. Glad to have you back with us.'
 
    #####providing salutation######
