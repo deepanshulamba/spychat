@@ -1,3 +1,6 @@
+from steganography.steganography import Steganography
+from datetime import datetime
+
 print("Hello world")
 print 'what\'s up?'
 print 'Let\'s get started...'
@@ -47,7 +50,7 @@ def spy_chat():
     current_status_message=None
     while show_menu:
         print ("What do you want to do?")
-        menu_choices="1. Add a status update \n2. Add a friend \n3. Send message \n4. Exit the application \nInput:-"
+        menu_choices="1. Add a status update \n2. Add a friend \n3. Send message \n4. Receive message \n5. Exit the application \nInput:-"
         menu_choice=raw_input(menu_choices)
         if menu_choice=="1":
             current_status_message=add_status(current_status_message)
@@ -55,8 +58,10 @@ def spy_chat():
             no=add_friend()   ###no of friends returned
             print ("No. of friends: %d" % no)
         elif menu_choice == "3":
-            select_a_friend()
+            send_message()
         elif menu_choice=="4":
+            read_message()
+        elif menu_choice=="5":
             print ("Quitting...")   ####quits the program
             show_menu=False
         else:
@@ -101,7 +106,7 @@ def add_status(current_status_message):
 #####Friend function start#####
 
 def add_friend():
-    new_friend = {"Name": "", "Salutation": "", "age": 0, "Rating": 0.0, }
+    new_friend = {"Name": "", "Salutation": "", "age": 0, "Rating": 0.0, "Chats": [] }
     new_friend["Name"] =raw_input("Whats your friend spy name?")
     new_friend["Salutation"] =raw_input("what would be the salutation, Mr. or Mrs??")
     new_friend["Name"] = new_friend["Salutation"] + " " + new_friend["Name"]
@@ -112,13 +117,58 @@ def add_friend():
     else:
         print("Sorry we can't add your friend's details please try again.")
     return len(Friends)
+
 def select_a_friend():
     item_no = 0
-    for friend in Friends:
-        print("%d . %s" % (item_no+1, friend["Name"]))
-        item_no = item_no + 1
-    friend_no = int(input("Select your Friend : "))
-    print("You selected %d Friend" % friend_no)
+    if len(Friends)!=0:
+        for friend in Friends:
+            print("%d . %s" % (item_no+1, friend["Name"]))
+            item_no = item_no + 1
+        friend_no = int(input("Select your Friend : "))
+        if friend_no<=len(Friends) and friend_no!=0:
+            print("You selected %d no Friend" % friend_no)
+            return friend_no-1
+        else:
+            print("Wrong raw_input, please try again...")
+    else:
+        print("Sorry no Friend added till now, plz add a friend first...")
+        friend_no=add_friend()
+        print("No. of Friends: %d" % friend_no)
+        select_a_friend()
+
+#####sending message#####
+
+def send_message():
+    selection = select_a_friend();
+    image = raw_input("Name of image to be encoded :")
+    out_path = "abc1.jpg"
+    text = raw_input("what text do you want to encode :")
+    Steganography.encode(image, out_path, text)
+    print("Message sent... ")
+    text = "You : " + text
+    new_chat = {
+        "message": text,
+        "time": datetime.now(),
+        "send_by_me": True
+    }
+    Friends[selection]["Chats"].append(new_chat)
+
+
+#####receiving message#####
+
+def read_message():
+    selection = select_a_friend()
+    image = raw_input("Name of image to be decoded : ")
+    text = Steganography.decode(image)
+    text = Friends[selection]["Name"] + " : " + text
+    new_chat = {
+        "message": text,
+        "time": datetime.now(),
+        "send_by_me": False
+    }
+    Friends[selection]["Chats"].append(new_chat)
+    print(text)
+
 
 user=raw_input("Do you want to continue with the default user ?(Y/N)")
 new_user=0
