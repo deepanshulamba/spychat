@@ -1,6 +1,7 @@
 from steganography.steganography import Steganography
 from datetime import datetime
 import spy_details
+import csv
 print("Hello world")
 print 'what\'s up?'
 print 'Let\'s get started...'
@@ -43,7 +44,8 @@ def entry():
     print 'Your age =' , spy_age
     print 'Your spy rating=',spy_rating
 
-#################################
+#####function for loading friends
+
 
 def spy_chat():
     show_menu=True
@@ -108,16 +110,21 @@ def add_status(current_status_message):
 def add_friend():
     #new_friend = {"Name": "", "Salutation": "", "age": 0, "Rating": 0.0, "Chats": [] }
     Name=raw_input("Whats your friend spy name?")
-    Salutation=raw_input("what would be the salutation, Mr. or Mrs??")
+    Salutation=raw_input("what would be the salutation, Mr. or Ms.??")
     #Name= new_friend["Salutation"] + " " + new_friend["Name"]
     age = int(input("what is friends age?"))
     Rating= float(input("what's your friend spy rating??"))
     if len(Name) > 0 and 12 < age < 50:  # add friend
-        friend_no=spy_details.Spy(Name,Salutation,age,Rating)
-        Friends.append(friend_no)
+        spy=spy_details.Spy(Name,Salutation,age,Rating)
+        Friends.append(spy)
+        with open('friends.csv', 'a') as friends_data:
+            writer = csv.writer(friends_data)
+            writer.writerow([spy.Name, spy.Salutation, spy.age, spy.Rating, spy.is_online])
     else:      #####invalid details
         print("Sorry we can't add your friend's details please try again.")
     return len(Friends)
+
+
 
 def select_a_friend():
     item_no = 0
@@ -149,7 +156,9 @@ def send_message():
     text = "You : " + text
     chat=spy_details.ChatMessage(text,True)
     Friends[selection].chats.append(chat)
-    print(text)
+    with open('chats.csv', 'a') as chat_data:
+        writer = csv.writer(chat_data)
+        writer.writerow([text, True])
 
 
 #####receiving message#####
@@ -163,6 +172,21 @@ def read_message():
     Friends[selection].chats.append(chat)
     print(text)
 
+def load_friends():
+    with open('friends.csv', 'rb') as friend_data:
+        reader = csv.reader(friend_data)
+        for row in reader:
+            spy=spy_details.Spy(Name=row[0], Salutation=row[1], age=int(row[2]), Rating=float(row[3]))
+            Friends.append(spy)
+
+#####function for loading chats
+def load_chats():
+    with open('chats.csv', 'rb') as chats_data:
+        reader = csv.reader(chats_data)
+        for friend in range(len(Friends)):
+            for row in reader:
+                chat=spy_details.ChatMessage(message=row[0], sent_by_me=row[1])
+                Friends[friend].chats.append(chat)
 
 user=raw_input("Do you want to continue with the default user ?(Y/N)")
 new_user=0
